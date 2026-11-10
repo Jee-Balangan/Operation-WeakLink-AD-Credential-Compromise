@@ -53,6 +53,55 @@ Several detection gaps were identified:
 - No correlation between failed and successful authentication
 - Missing SMB share auditing for Event ID `5140`
 
+- ## Detection Engineering Recommendations
+
+Based on the findings from Operation WeakLink, I identified several opportunities to improve authentication monitoring, event correlation, and SMB visibility within the Active Directory environment.
+
+### 1. Password Spraying Detection
+
+Implement threshold-based alerting for repeated Windows Event ID `4625` authentication failures across multiple user accounts.
+
+Detection logic should consider:
+
+- Multiple failed authentication attempts within a defined time window
+- Repeated failures originating from a common source IP address
+- Authentication attempts targeting multiple distinct accounts
+- Patterns consistent with password spraying rather than individual password errors
+
+### 2. Failed-to-Successful Authentication Correlation
+
+Correlate Windows Event IDs `4625` and `4624` to identify successful authentication following repeated failures.
+
+Prioritize investigations when:
+
+- Multiple failed logins precede a successful authentication
+- The activity originates from the same source IP or associated host
+- The successful authentication involves an account targeted during the earlier failures
+
+### 3. SMB Access Monitoring
+
+Enable appropriate Windows auditing to improve visibility into SMB share access.
+
+Relevant events include:
+
+- `5140` — Network share object accessed
+- `5145` — Network share object checked for access permissions
+
+Review access to sensitive shares and investigate unusual access patterns, particularly following suspicious authentication activity.
+
+### 4. Detection Validation
+
+After implementing detection improvements, repeat the authorized lab simulations to verify whether Wazuh generates actionable alerts.
+
+Validation should include:
+
+- Confirming required Windows events are collected
+- Testing detection thresholds and correlation logic
+- Evaluating potential false positives
+- Documenting alert results and remaining visibility gaps
+
+**Status:** Proposed improvements based on observed lab findings. Detection rules and enhanced auditing require implementation and validation.
+
 ## MITRE ATT&CK Mapping
 
 - `T1046` — Network Service Discovery
